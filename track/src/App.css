@@ -1,0 +1,58 @@
+/* File: src/App.css */
+
+body{
+  background-color: #f1f1f1;
+}
+
+.App {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+}
+
+.table-container {
+  overflow-x: auto; /* Add horizontal scrolling for smaller screens */
+}
+
+.table {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr); /* Ensure columns fit evenly */
+  gap: 8px; /* Space between columns */
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr); /* Match column count */
+  gap: 8px;
+}
+
+input, select {
+  min-width: 120px; /* Prevent shrinking below this width */
+}
+
+.header {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+
+
+button {
+  margin: 1px;
+  margin-left: 15px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  color: white;
+  border-radius: 5px;
+}
+
