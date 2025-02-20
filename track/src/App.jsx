@@ -1,20 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
-import { LuTrash } from "react-icons/lu";
-import { LuPlus } from "react-icons/lu";
+import { LuTrash, LuPlus } from "react-icons/lu";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import getDropdownStyle from "./utils/getDropdownStyle";
 
+// Initial state with separate rows
+const initialApplications = [
+  { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
+  { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
+  { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
+  { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
+  { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
+  { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
+];
+
 function App() {
-  const [applications, setApplications] = useState([
-    { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
-    { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
-    { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
-    { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
-    { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
-    { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
-    { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
-  ]);
+  // Load from localStorage or use initial state
+  const [applications, setApplications] = useState(() => {
+    const savedData = localStorage.getItem("jobApplications");
+    return savedData ? JSON.parse(savedData) : initialApplications;
+  });
+
+  // Save to localStorage on change
+  useEffect(() => {
+    localStorage.setItem("jobApplications", JSON.stringify(applications));
+  }, [applications]);
 
   const handleInputChange = (index, field, value) => {
     const updatedApplications = [...applications];
@@ -23,10 +33,7 @@ function App() {
   };
 
   const addRow = () => {
-    setApplications([
-      ...applications,
-      { company: "", jobTitle: "", appType: "", locationType: "", jobType: "", salary: "", website: "", status: "", favorite: false },
-    ]);
+    setApplications([...applications, { ...initialApplications[0] }]);
   };
 
   const deleteRow = (index) => {
@@ -37,17 +44,22 @@ function App() {
   const toggleFavorite = (index) => {
     const updatedApplications = [...applications];
     updatedApplications[index].favorite = !updatedApplications[index].favorite;
-  
-    // Sort the array to prioritize favorited rows
-    updatedApplications.sort((a, b) => (b.favorite === true) - (a.favorite === true));
-  
+
+    // Sort favorites first
+    updatedApplications.sort((a, b) => b.favorite - a.favorite);
+
     setApplications(updatedApplications);
   };
-  
-  
+
+  // Reset function
+  const resetApplications = () => {
+    setApplications(initialApplications);
+    localStorage.removeItem("jobApplications"); // Clear local storage
+  };
+
   return (
     <div className="App text-gray-600 bg-gradient-to-br from-blue-50 to-purple-50 relative">
-      <h1 className="font-poppins text-2xl font-bold text-gray-600 my-6">
+      <h1 className="font-poppins text-4xl font-bold text-gray-600 my-6">
         The Job Vault
       </h1>
       <div className="table-container rounded-3xl shadow-md overflow-x-auto bg-white font-poppins py-7 px-7">
@@ -63,26 +75,11 @@ function App() {
           <div>Actions</div>
         </div>
         {applications.map((application, index) => (
-          <div
-            key={index}
-            className={`row grid grid-cols-9 gap-2 items-center py-3 ${
-              application.favorite ? "bg-white" : ""
-            } border-b border-gray-300`}
-          >
-            <input
-              type="text"
-              className=" rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-              value={application.company}
-              onChange={(e) => handleInputChange(index, "company", e.target.value)}
-              placeholder="Enter company"
-            />
-            <input
-              type="text"
-              className=" rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-              value={application.jobTitle}
-              onChange={(e) => handleInputChange(index, "jobTitle", e.target.value)}
-              placeholder="Enter job title"
-            />
+          <div key={index} className="row grid grid-cols-9 gap-2 items-center py-3 border-b border-gray-300">
+            <input type="text" className="rounded-md px-2 py-2 text-sm" value={application.company}
+              onChange={(e) => handleInputChange(index, "company", e.target.value)} placeholder="Enter company"/>
+            <input type="text" className="rounded-md px-2 py-2 text-sm" value={application.jobTitle}
+              onChange={(e) => handleInputChange(index, "jobTitle", e.target.value)} placeholder="Enter job title"/>
             <select
             className="rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             value={application.appType}
@@ -105,7 +102,7 @@ function App() {
             <option value="on-site" className="bg-green-100 text-green-600">On-Site</option>
             <option value="hybrid" className="bg-red-100 text-red-600">Hybrid</option>
           </select>
-            <select
+          <select
               className=" rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
               value={application.jobType}
               onChange={(e) => handleInputChange(index, "jobType", e.target.value)}
@@ -117,21 +114,11 @@ function App() {
               <option value="part-time" className="bg-orange-100 text-orange-600">Part-Time</option>
               <option value="contract" className="bg-purple-100 text-purple-600">Contract</option>
             </select>
-            <input
-              type="text"
-              className=" rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-              value={application.salary}
-              onChange={(e) => handleInputChange(index, "salary", e.target.value)}
-              placeholder="Enter salary"
-            />
-            <input
-              type="url"
-              className=" rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-              value={application.website}
-              onChange={(e) => handleInputChange(index, "website", e.target.value)}
-              placeholder="Enter website link"
-            />
-           <select
+            <input type="text" className="rounded-md px-2 py-2 text-sm" value={application.salary}
+              onChange={(e) => handleInputChange(index, "salary", e.target.value)} placeholder="Enter salary"/>
+            <input type="url" className="rounded-md px-2 py-2 text-sm" value={application.website}
+              onChange={(e) => handleInputChange(index, "website", e.target.value)} placeholder="Enter website link"/>
+            <select
             className="rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             value={application.status}
             onChange={(e) => handleInputChange(index, "status", e.target.value)}
@@ -147,45 +134,28 @@ function App() {
               <option value="accepted" className="bg-purple-100 text-purple-600">Accepted</option>
             </select>
             <div className="actions flex items-center space-x-2">
-            {/* Favorite Button with Tooltip */}
-            <div className="group relative">
-              <button
-                className="text-teal-400 hover:text-teal-500 transition-transform duration-200 ease-in-out transform hover:scale-125"
-                onClick={() => toggleFavorite(index)}
-              >
+              <button className="text-teal-400 hover:text-teal-500" onClick={() => toggleFavorite(index)}>
                 {application.favorite ? <AiFillStar /> : <AiOutlineStar />}
               </button>
-              <div
-                className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
-              >
-                {application.favorite ? "Unmark Favorite" : "Mark as Favorite"}
-              </div>
-            </div>
-
-            {/* Delete Button with Tooltip */}
-            <div className="group relative">
-              <button
-                className="text-red-500 hover:text-red-700 transition-transform duration-200 ease-in-out transform hover:scale-125"
-                onClick={() => deleteRow(index)}
-              >
+              <button className="text-red-500 hover:text-red-700" onClick={() => deleteRow(index)}>
                 <LuTrash />
               </button>
-              <div
-                className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
-              >
-                Delete Row
-              </div>
             </div>
-          </div>
           </div>
         ))}
       </div>
-      <button
-        className="fixed bottom-4 right-4 bg-indigo-600 text-white p-4 rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none"
-        onClick={addRow}
-      >
-        <LuPlus />
-      </button>
+      
+      {/* Buttons */}
+      <div className="fixed bottom-4 right-4 flex space-x-3">
+        <button className="bottom-4 right-4 bg-indigo-600 text-white p-5 rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none"
+          onClick={addRow}>
+          <LuPlus />
+        </button>
+        <button className="bg-red-600 text-white p-4 rounded-full shadow-lg hover:bg-red-700"
+          onClick={resetApplications}>
+          Reset
+        </button>
+      </div>
     </div>
   );
 }
